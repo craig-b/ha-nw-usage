@@ -1,4 +1,5 @@
 """Config flow for Neural Watt integration."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -39,9 +40,7 @@ async def validate_input(hass: HomeAssistant, api_key: str) -> dict[str, str]:
 class NeuralWattConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
             try:
@@ -55,17 +54,11 @@ class NeuralWattConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 await self.async_set_unique_id(DOMAIN)
                 self._abort_if_unique_id_configured()
-                return self.async_create_entry(
-                    title=info["title"], data=user_input
-                )
+                return self.async_create_entry(title=info["title"], data=user_input)
 
-        return self.async_show_form(
-            step_id="user", data_schema=STEP_USER_SCHEMA, errors=errors
-        )
+        return self.async_show_form(step_id="user", data_schema=STEP_USER_SCHEMA, errors=errors)
 
-    async def async_step_reauth(
-        self, entry_data: Mapping[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_reauth(self, entry_data: Mapping[str, Any] | None = None) -> FlowResult:
         return await self.async_step_reauth_confirm()
 
     async def async_step_reauth_confirm(
@@ -73,9 +66,7 @@ class NeuralWattConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            entry = self.hass.config_entries.async_get_entry(
-                self.context["entry_id"]
-            )
+            entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
             try:
                 await validate_input(self.hass, user_input[CONF_API_KEY])
             except CannotConnect:

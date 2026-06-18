@@ -1,4 +1,5 @@
 """Statistics backfill for Neural Watt integration."""
+
 from __future__ import annotations
 
 import logging
@@ -44,11 +45,11 @@ def _build_rows(daily: list[dict[str, Any]]) -> list[StatisticData]:
     for entry in sorted_daily:
         try:
             day = date.fromisoformat(entry["date"])
-        except (KeyError, ValueError, TypeError):
+        except KeyError, ValueError, TypeError:
             continue
         try:
             kwh = float(entry.get("energy_kwh", 0) or 0)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             continue
         cumulative += kwh
         start = dt_util.as_utc(dt_util.start_of_local_day(day))
@@ -63,9 +64,7 @@ def _build_rows(daily: list[dict[str, Any]]) -> list[StatisticData]:
     return rows
 
 
-def async_import_statistics(
-    hass: HomeAssistant, daily: list[dict[str, Any]] | None
-) -> None:
+def async_import_statistics(hass: HomeAssistant, daily: list[dict[str, Any]] | None) -> None:
     if not daily:
         return
     rows = _build_rows(daily)

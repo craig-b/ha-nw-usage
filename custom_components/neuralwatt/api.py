@@ -1,4 +1,5 @@
 """Neural Watt API client."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -25,9 +26,7 @@ class NeuralWattClient:
     def _headers(self) -> dict[str, str]:
         return {"Authorization": f"Bearer {self._api_key}"}
 
-    async def async_get_energy(
-        self, start_date: date, end_date: date
-    ) -> dict[str, Any]:
+    async def async_get_energy(self, start_date: date, end_date: date) -> dict[str, Any]:
         url = f"{API_BASE_URL}{API_ENERGY_ENDPOINT}"
         params = {
             "start_date": start_date.isoformat(),
@@ -39,9 +38,7 @@ class NeuralWattClient:
         url = f"{API_BASE_URL}{API_SUMMARY_ENDPOINT}"
         return await self._request(url)
 
-    async def _request(
-        self, url: str, params: dict[str, str] | None = None
-    ) -> dict[str, Any]:
+    async def _request(self, url: str, params: dict[str, str] | None = None) -> dict[str, Any]:
         try:
             async with self._session.get(
                 url,

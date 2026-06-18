@@ -1,4 +1,5 @@
 """Neural Watt sensor entities."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -67,9 +68,7 @@ def _last_reset_from_period(
         return None
 
 
-def _period_value(
-    period_data: dict[str, Any] | None, sensor_type: str
-) -> Any:
+def _period_value(period_data: dict[str, Any] | None, sensor_type: str) -> Any:
     if not period_data:
         return None
     if sensor_type == SENSOR_TYPE_ENERGY:
@@ -185,9 +184,7 @@ SUMMARY_SENSOR_DESCRIPTIONS: tuple[NeuralWattSummarySensorDescription, ...] = (
 )
 
 
-class NeuralWattBaseSensor(
-    CoordinatorEntity[NeuralWattDataUpdateCoordinator], SensorEntity
-):
+class NeuralWattBaseSensor(CoordinatorEntity[NeuralWattDataUpdateCoordinator], SensorEntity):
     _attr_has_entity_name = True
 
     def __init__(self, coordinator: NeuralWattDataUpdateCoordinator) -> None:

@@ -1,4 +1,5 @@
 """Data update coordinator for Neural Watt."""
+
 from __future__ import annotations
 
 import logging
@@ -77,9 +78,7 @@ class NeuralWattDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         }
 
     @staticmethod
-    def _slice_daily(
-        daily: list[dict[str, Any]], start: date, end: date
-    ) -> dict[str, Any]:
+    def _slice_daily(daily: list[dict[str, Any]], start: date, end: date) -> dict[str, Any]:
         requests = 0
         requests_with_energy = 0
         energy_kwh = 0.0
@@ -87,7 +86,7 @@ class NeuralWattDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         for entry in daily:
             try:
                 entry_date = date.fromisoformat(entry["date"])
-            except (KeyError, ValueError, TypeError):
+            except KeyError, ValueError, TypeError:
                 continue
             if not (start <= entry_date <= end):
                 continue
@@ -96,7 +95,7 @@ class NeuralWattDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 requests_with_energy += int(entry.get("requests_with_energy", 0))
                 energy_kwh += float(entry.get("energy_kwh", 0) or 0)
                 energy_joules += int(entry.get("energy_joules", 0) or 0)
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 continue
 
         midnight = _local_midnight(datetime.now())
