@@ -31,7 +31,7 @@ jobs:
           pip install ruff
 
       - name: Run Ruff linter
-        run: ruff check .
+        run: ruff check --output-format=github .
 
       - name: Run Ruff formatter check
         run: ruff format --check .
@@ -99,3 +99,72 @@ jobs:
             --cov=custom_components/neuralwatt \
             --cov-report=xml \
             --cov-report=term-missing
+
+      - name: Coverage summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Coverage (HA ${{ matrix.home-assistant }})"
+            echo ""
+            if [ -f coverage.xml ]; then
+              python - <<'EOF'
+          import xml.etree.ElementTree as ET
+          tree = ET.parse("coverage.xml")
+          root = tree.getroot()
+          total = float(root.attrib["line-rate"]) * 100
+          print("| File | Coverage | Missing lines |")
+          print("| --- | --- | --- |")
+          print(f"| **Total** | **{total:.1f}%** | |")
+          for cls in root.findall(".//class"):
+              fname = cls.attrib.get("filename", "unknown")
+              rate = float(cls.attrib.get("line-rate", "0")) * 100
+              lines_el = cls.find("lines")
+              missing = 0
+              if lines_el is not None:
+                  missing = sum(1 for ln in lines_el.findall("line") if ln.attrib.get("hits") == "0")
+              print(f"| `{fname}` | {rate:.1f}% | {missing} |")
+          EOF
+            else
+              echo "_coverage.xml not found_"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage XML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.home-assistant }}
+          path: coverage.xml
+          if-no-files-found: ignore
+          retention-days: 14
+
+  summary:
+    name: Summary
+    runs-on: ubuntu-latest
+    needs: [lint, type-check, test]
+    if: always()
+    steps:
+      - name: Write job summary
+        shell: bash
+        run: |
+          icon() {
+            case "$1" in
+              success) echo "✅" ;;
+              failure) echo "❌" ;;
+              cancelled) echo "🚫" ;;
+              skipped) echo "⏭️" ;;
+              *) echo "❔" ;;
+            esac
+          }
+          {
+            echo "## CI Results"
+            echo ""
+            echo "| Job | Status |"
+            echo "| --- | --- |"
+            echo "| Lint | $(icon "${{ needs.lint.result }}") |"
+            echo "| Type Check | $(icon "${{ needs.type-check.result }}") |"
+            echo "| Tests (matrix) | $(icon "${{ needs.test.result }}") |"
+            echo ""
+            echo "_Matrix details in the individual Test (HA …) jobs above._"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -3,5 +3,6 @@ pytest-asyncio
 pytest-timeout
 pytest-socket
 pytest-cov
+pytest-github-actions-annotate-failures
 mypy
 ruff
