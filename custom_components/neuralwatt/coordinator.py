@@ -89,11 +89,15 @@ class NeuralWattDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 entry_date = date.fromisoformat(entry["date"])
             except (KeyError, ValueError, TypeError):
                 continue
-            if start <= entry_date <= end:
+            if not (start <= entry_date <= end):
+                continue
+            try:
                 requests += int(entry.get("requests", 0))
                 requests_with_energy += int(entry.get("requests_with_energy", 0))
-                energy_kwh += float(entry.get("energy_kwh", 0))
-                energy_joules += int(entry.get("energy_joules", 0))
+                energy_kwh += float(entry.get("energy_kwh", 0) or 0)
+                energy_joules += int(entry.get("energy_joules", 0) or 0)
+            except (TypeError, ValueError):
+                continue
 
         midnight = _local_midnight(datetime.now())
         if start == end:
