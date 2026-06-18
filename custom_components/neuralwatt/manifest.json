@@ -1,0 +1,11 @@
+{
+  "domain": "neuralwatt",
+  "name": "Neural Watt",
+  "documentation": "https://github.com/craig/neuralwatt-ha",
+  "issue_tracker": "https://github.com/craig/neuralwatt-ha/issues",
+  "codeowners": ["@craig"],
+  "config_flow": true,
+  "iot_class": "cloud_polling",
+  "version": "0.1.0",
+  "requirements": []
+}
