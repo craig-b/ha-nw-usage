@@ -22,6 +22,7 @@ from .const import (
     PERIOD_THIS_MONTH,
     PERIOD_TODAY,
 )
+from .statistics import async_import_statistics
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -63,6 +64,8 @@ class NeuralWattDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         today_totals = self._slice_daily(daily, today, today)
         month_totals = self._slice_daily(daily, month_start, today)
         rolling_totals = self._slice_daily(daily, rolling_start, today)
+
+        async_import_statistics(self.hass, daily)
 
         return {
             PERIOD_TODAY: today_totals,
