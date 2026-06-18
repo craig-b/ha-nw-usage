@@ -1,12 +1,12 @@
 {
   "domain": "neuralwatt",
   "name": "Neural Watt",
-  "documentation": "https://github.com/craig/neuralwatt-ha",
-  "issue_tracker": "https://github.com/craig/neuralwatt-ha/issues",
+  "after_dependencies": ["recorder"],
   "codeowners": ["@craig"],
   "config_flow": true,
+  "documentation": "https://github.com/craig/neuralwatt-ha",
   "iot_class": "cloud_polling",
-  "after_dependencies": ["recorder"],
-  "version": "0.1.0",
-  "requirements": []
+  "issue_tracker": "https://github.com/craig/neuralwatt-ha/issues",
+  "requirements": [],
+  "version": "0.1.0"
 }

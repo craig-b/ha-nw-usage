@@ -1,13 +1,12 @@
 """Tests for the Neural Watt API client."""
+
 from __future__ import annotations
 
-import re
 from datetime import date
 
 import aiohttp
 import pytest
-import pytest_asyncio
-from aioresponses import aioresponses
+from conftest import mock_session
 
 from custom_components.neuralwatt.api import (
     NeuralWattApiError,
@@ -16,22 +15,12 @@ from custom_components.neuralwatt.api import (
 )
 
 API_BASE = "https://api.neuralwatt.com/v1"
-ENERGY_URL = re.compile(r"^https://api\.neuralwatt\.com/v1/usage/energy(\?.*)?$")
+ENERGY_URL = f"{API_BASE}/usage/energy"
 SUMMARY_URL = f"{API_BASE}/usage/summary"
 
 
-@pytest_asyncio.fixture
-async def session() -> aiohttp.ClientSession:
-    """Create an aiohttp session."""
-    s = aiohttp.ClientSession()
-    yield s
-    await s.close()
-
-
 @pytest.mark.asyncio
-async def test_async_get_energy_returns_json(
-    session: aiohttp.ClientSession,
-) -> None:
+async def test_async_get_energy_returns_json() -> None:
     payload = {
         "period": {"start": "2024-11-01", "end": "2024-11-30"},
         "totals": {
@@ -50,62 +39,52 @@ async def test_async_get_energy_returns_json(
             }
         ],
     }
-    with aioresponses() as m:
-        m.get(ENERGY_URL, payload=payload)
-        client = NeuralWattClient(session, "sk-test-key")
-        result = await client.async_get_energy(
-            start_date=date(2024, 11, 1), end_date=date(2024, 11, 30)
-        )
+    session = mock_session(status=200, json_data=payload)
+    client = NeuralWattClient(session, "sk-test-key")
+    result = await client.async_get_energy(
+        start_date=date(2024, 11, 1), end_date=date(2024, 11, 30)
+    )
     assert result == payload
-    # Authorization header should be present
-    request_key = list(m.requests.keys())[0]
-    sent_kwargs = m.requests[request_key][0].kwargs
-    assert sent_kwargs.get("headers", {}).get("Authorization") == "Bearer sk-test-key"
-    assert sent_kwargs.get("params", {}).get("start_date") == "2024-11-01"
-    assert sent_kwargs.get("params", {}).get("end_date") == "2024-11-30"
+    session.get.assert_called_once()
+    call_kwargs = session.get.call_args.kwargs
+    assert call_kwargs["headers"]["Authorization"] == "Bearer sk-test-key"
+    assert call_kwargs["params"]["start_date"] == "2024-11-01"
+    assert call_kwargs["params"]["end_date"] == "2024-11-30"
 
 
 @pytest.mark.asyncio
-async def test_async_get_summary_returns_json(
-    session: aiohttp.ClientSession,
-) -> None:
+async def test_async_get_summary_returns_json() -> None:
     payload = {
         "energy_kwh_consumed": 0.001,
         "energy_kwh_charged": 0.001,
         "total_cost_usd": 0.0001,
         "accounting_method": "energy",
     }
-    with aioresponses() as m:
-        m.get(SUMMARY_URL, payload=payload)
-        client = NeuralWattClient(session, "sk-test-key")
-        result = await client.async_get_summary()
+    session = mock_session(status=200, json_data=payload)
+    client = NeuralWattClient(session, "sk-test-key")
+    result = await client.async_get_summary()
     assert result == payload
 
 
 @pytest.mark.asyncio
-async def test_401_raises_auth_error(session: aiohttp.ClientSession) -> None:
-    with aioresponses() as m:
-        m.get(SUMMARY_URL, status=401, payload={"error": "unauthorized"})
-        client = NeuralWattClient(session, "sk-test-key")
-        with pytest.raises(NeuralWattAuthError):
-            await client.async_get_summary()
+async def test_401_raises_auth_error() -> None:
+    session = mock_session(status=401, json_data={"error": "unauthorized"})
+    client = NeuralWattClient(session, "sk-test-key")
+    with pytest.raises(NeuralWattAuthError):
+        await client.async_get_summary()
 
 
 @pytest.mark.asyncio
-async def test_500_raises_api_error(session: aiohttp.ClientSession) -> None:
-    with aioresponses() as m:
-        m.get(SUMMARY_URL, status=500, payload={"error": "boom"})
-        client = NeuralWattClient(session, "sk-test-key")
-        with pytest.raises(NeuralWattApiError):
-            await client.async_get_summary()
+async def test_500_raises_api_error() -> None:
+    session = mock_session(status=500, json_data={"error": "boom"})
+    client = NeuralWattClient(session, "sk-test-key")
+    with pytest.raises(NeuralWattApiError):
+        await client.async_get_summary()
 
 
 @pytest.mark.asyncio
-async def test_connection_error_raises_api_error(
-    session: aiohttp.ClientSession,
-) -> None:
-    with aioresponses() as m:
-        m.get(SUMMARY_URL, exception=aiohttp.ClientError("boom"))
-        client = NeuralWattClient(session, "sk-test-key")
-        with pytest.raises(NeuralWattApiError):
-            await client.async_get_summary()
+async def test_connection_error_raises_api_error() -> None:
+    session = mock_session(exception=aiohttp.ClientError("boom"))
+    client = NeuralWattClient(session, "sk-test-key")
+    with pytest.raises(NeuralWattApiError):
+        await client.async_get_summary()

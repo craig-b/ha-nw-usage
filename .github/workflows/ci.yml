@@ -31,10 +31,10 @@ jobs:
           pip install ruff
 
       - name: Run Ruff linter
-        run: ruff check custom_components/
+        run: ruff check .
 
       - name: Run Ruff formatter check
-        run: ruff format --check custom_components/
+        run: ruff format --check .
 
   type-check:
     name: Type Check

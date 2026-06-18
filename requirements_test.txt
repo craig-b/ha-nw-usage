@@ -1,6 +1,5 @@
 pytest
 pytest-asyncio
-aioresponses
 pytest-timeout
 pytest-socket
 pytest-cov

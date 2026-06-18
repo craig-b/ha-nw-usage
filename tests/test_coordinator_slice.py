@@ -1,4 +1,5 @@
 """Tests for Neural Watt coordinator slicing logic."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -63,9 +64,7 @@ def test_slice_skips_out_of_range_days() -> None:
 
 
 def test_slice_empty_daily() -> None:
-    result = NeuralWattDataUpdateCoordinator._slice_daily(
-        [], date(2024, 11, 1), date(2024, 11, 30)
-    )
+    result = NeuralWattDataUpdateCoordinator._slice_daily([], date(2024, 11, 1), date(2024, 11, 30))
     assert result["requests"] == 0
     assert result["energy_kwh"] == 0.0
     assert result["energy_joules"] == 0
