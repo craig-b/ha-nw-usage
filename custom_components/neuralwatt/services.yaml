@@ -1,0 +1,28 @@
+{
+  "service": {
+    "backfill_statistics": {
+      "name": "Backfill statistics",
+      "description": "Fetches energy usage for a custom date range from the Neural Watt API and imports it as long-term statistics. Useful for backfilling history beyond the default 30-day window the coordinator fetches.",
+      "fields": {
+        "start_date": {
+          "name": "Start date",
+          "description": "Start date (YYYY-MM-DD). Required.",
+          "example": "2024-01-01",
+          "required": true,
+          "selector": {
+            "date": {}
+          }
+        },
+        "end_date": {
+          "name": "End date",
+          "description": "End date (YYYY-MM-DD). Defaults to today.",
+          "example": "2024-11-30",
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      }
+    }
+  }
+}

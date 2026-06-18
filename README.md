@@ -53,6 +53,22 @@ The integration takes a two-pronged approach:
 Cost is exposed as a current-value sensor only (the summary endpoint reports
 a single as-of cost, not a daily-resolved series).
 
+## Backfilling history beyond 30 days
+
+The coordinator fetches roughly 30 days of `daily[]` data by default. To
+backfill longer history into the long-term statistics, call the
+`neuralwatt.backfill_statistics` service:
+
+```yaml
+service: neuralwatt.backfill_statistics
+data:
+  start_date: "2024-01-01"
+  end_date: "2024-11-30"
+```
+
+The service fetches the requested range from the API, imports each day's
+energy as a long-term statistic, and returns `{"ok": true, "imported_days": N}`.
+
 ## Configuration
 
 1. Install via HACS (or copy `custom_components/neuralwatt/` into your
