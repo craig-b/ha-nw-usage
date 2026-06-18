@@ -12,7 +12,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CURRENCY_USD, UnitOfEnergy
+from homeassistant.const import CURRENCY_DOLLAR, UnitOfEnergy
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -172,7 +172,7 @@ SUMMARY_SENSOR_DESCRIPTIONS: tuple[NeuralWattSummarySensorDescription, ...] = (
         key="total_cost",
         name="Cost",
         summary_field=ATTR_TOTAL_COST_USD,
-        native_unit_of_measurement=CURRENCY_USD,
+        native_unit_of_measurement=CURRENCY_DOLLAR,
         device_class=SensorDeviceClass.MONETARY,
         state_class=SensorStateClass.MEASUREMENT,
     ),
